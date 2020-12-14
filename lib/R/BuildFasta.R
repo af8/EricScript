@@ -10,14 +10,14 @@ dbfolder <- as.character(split.vars[6])
 
 
 formatfasta <- function(myfasta, step = 50) {
-	
+
 	totalchar <- nchar(myfasta)
 	if (totalchar > step) {
 		steps <- seq(1, totalchar, by = step)
 		newfasta <- rep("", (length(steps) - 1))
 		for (j in 1: (length(steps) - 1)) {
 			aa <- substr(myfasta, steps[j], (steps[j] + (step - 1)))
-			newfasta[j] <- aa 
+			newfasta[j] <- aa
 		}
 		if ((totalchar - tail(steps, n = 1)) > 0) {
 			newfasta <-  c(newfasta, substr(myfasta, steps[j+1], totalchar))
@@ -58,7 +58,7 @@ for (i in 1: length(id1)) {
 	if (strand1 == "+") {
 		tmp.sum1 <- cumsum((b - a ))
 	} else {
-		tmp.sum1 <- cumsum(rev(b - a))		
+		tmp.sum1 <- cumsum(rev(b - a))
 	}
 	exonenumber1 <- which(tmp.sum1 >= max.pos1)[1]
 	if (is.na(exonenumber1)) {exonenumber1 <- length(tmp.sum1)}
@@ -75,7 +75,7 @@ for (i in 1: length(id1)) {
 	id.gf1 <- paste(id1[i], exonenumber1, sep = "_")
 	fasta.gf1.tmp0 <- sequences[ix.gene1]
 	start.end.exons <- c(0,tmp.sum1)
-	fasta.gf1 <- substr(fasta.gf1.tmp0, min.pos1, (max.pos1 + maxgap - 1))	
+	fasta.gf1 <- substr(fasta.gf1.tmp0, min.pos1, (max.pos1 + maxgap - 1))
 	id.gf2 <- paste(id2[i], exonenumber2, sep = "_")
 	fasta.gf2.tmp0 <- sequences[ix.gene2]
 	if (max.pos2 > nchar(fasta.gf2.tmp0)) {max.pos2 <- nchar(fasta.gf2.tmp0)}
@@ -93,9 +93,3 @@ save(junctions, file = file.path(outputfolder, "out", paste(samplename,".junctio
 save(sequences.fasta, file = file.path(outputfolder, "out", paste(samplename,".sequences_fasta.RData", sep = "")))
 save(ids_fasta, file = file.path(outputfolder, "out",  paste(samplename, ".ids_fasta.RData", sep = "")))
 cat(fasta.file, file = file.path(outputfolder,"out", paste(samplename,".EricScript.junctions.fa",sep = "")), sep = "\n")
-
-
-
-
-
-
