@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/bash -ue
 ## bash pipeline
 outputfolder=$1
-. $outputfolder/ericscript.vars 
+. $outputfolder/ericscript.vars
 if [ $verbose -eq 1 ]; then
 touch $outputfolder/out/.ericscript.log
 fi
@@ -95,12 +95,12 @@ fi
 else
 printf "[EricScript] Aligning with bwa ...\n"
 if [ $bwa_aln -eq 1 ]; then
-bwa aln -t $nthreads $myref $reads_1 > $outputfolder/aln/"$samplename"_1.sai 
-bwa aln -t $nthreads $myref $reads_2 > $outputfolder/aln/"$samplename"_2.sai 
+bwa aln -t $nthreads $myref $reads_1 > $outputfolder/aln/"$samplename"_1.sai
+bwa aln -t $nthreads $myref $reads_2 > $outputfolder/aln/"$samplename"_2.sai
 fi
 if [ $MAPQ -gt 0 ]; then
 if [ $bwa_aln -eq 1 ]; then
-bwa sampe -P -c 0.001 $myref $outputfolder/aln/"$samplename"_1.sai $outputfolder/aln/"$samplename"_2.sai $reads_1 $reads_2 > $outputfolder/aln/"$samplename".sam 
+bwa sampe -P -c 0.001 $myref $outputfolder/aln/"$samplename"_1.sai $outputfolder/aln/"$samplename"_2.sai $reads_1 $reads_2 > $outputfolder/aln/"$samplename".sam
 else
 bwa mem -t $nthreads $myref $reads_1 $reads_2 > $outputfolder/aln/"$samplename".sam
 fi
@@ -159,18 +159,18 @@ else
 printf "[EricScript] Aligning to exon junction reference ... \n"
 bwa index $mynewref
 if [ $bwa_aln -eq 1 ]; then
-bwa aln -t $nthreads $mynewref $reads_1 > $outputfolder/aln/"$samplename"_1.remap.sai 
-bwa aln -t $nthreads $mynewref $reads_2 > $outputfolder/aln/"$samplename"_2.remap.sai 
+bwa aln -t $nthreads $mynewref $reads_1 > $outputfolder/aln/"$samplename"_1.remap.sai
+bwa aln -t $nthreads $mynewref $reads_2 > $outputfolder/aln/"$samplename"_2.remap.sai
 fi
 if [ $MAPQ -gt 0 ]; then
 if [ $bwa_aln -eq 1 ]; then
-bwa sampe -P $mynewref $outputfolder/aln/"$samplename"_1.remap.sai $outputfolder/aln/"$samplename"_2.remap.sai $reads_1 $reads_2 > $outputfolder/aln/$samplename.remap.sam 
+bwa sampe -P $mynewref $outputfolder/aln/"$samplename"_1.remap.sai $outputfolder/aln/"$samplename"_2.remap.sai $reads_1 $reads_2 > $outputfolder/aln/$samplename.remap.sam
 else
 bwa mem -t $nthreads $mynewref $reads_1 $reads_2 > $outputfolder/aln/$samplename.remap.sam
 fi
 else
 if [ $bwa_aln -eq 1 ]; then
-bwa sampe -P $mynewref $outputfolder/aln/"$samplename"_1.remap.sai $outputfolder/aln/"$samplename"_2.remap.sai $reads_1 $reads_2 | $ericscriptfolder/lib/perl/xa2multi.pl > $outputfolder/aln/$samplename.remap.sam 
+bwa sampe -P $mynewref $outputfolder/aln/"$samplename"_1.remap.sai $outputfolder/aln/"$samplename"_2.remap.sai $reads_1 $reads_2 | $ericscriptfolder/lib/perl/xa2multi.pl > $outputfolder/aln/$samplename.remap.sam
 else
 bwa mem -Y -t $nthreads $mynewref $reads_1 $reads_2 | $ericscriptfolder/lib/perl/xa2multi.pl > $outputfolder/aln/$samplename.remap.sam
 fi
@@ -200,23 +200,23 @@ cat $outputfolder/aln/tmp.sam | $ericscriptfolder/lib/perl/xa2multi.pl > $output
 samtools view -@ $nthreads -bt $mynewref_recal -o $outputfolder/aln/$samplename.remap.recal.bam $outputfolder/aln/$samplename.remap.recal.sam 1>> $outputfolder/out/.ericscript.log 2>> $outputfolder/out/.ericscript.log
 samtools sort -@ $nthreads $outputfolder/aln/$samplename.remap.recal.bam $outputfolder/aln/$samplename.remap.recal.sorted 1>> $outputfolder/out/.ericscript.log 2>> $outputfolder/out/.ericscript.log
 samtools rmdup $outputfolder/aln/$samplename.remap.recal.sorted.bam $outputfolder/aln/$samplename.remap.recal.sorted.rmdup.bam 1>> $outputfolder/out/.ericscript.log 2>> $outputfolder/out/.ericscript.log
-samtools index $outputfolder/aln/$samplename.remap.recal.sorted.rmdup.bam 1>> $outputfolder/out/.ericscript.log 
+samtools index $outputfolder/aln/$samplename.remap.recal.sorted.rmdup.bam 1>> $outputfolder/out/.ericscript.log
 samtools view -@ $nthreads -b -h -q 1 $outputfolder/aln/$samplename.remap.recal.sorted.rmdup.bam > $outputfolder/aln/$samplename.remap.recal.sorted.rmdup.q1.bam
 samtools index $outputfolder/aln/$samplename.remap.recal.sorted.rmdup.q1.bam
 else
 printf "[EricScript] Aligning to recalibrated junction reference ... \n"
-bwa index  $mynewref_recal 
+bwa index  $mynewref_recal
 if [ $bwa_aln -eq 1 ]; then
-bwa aln -R 5 -t $nthreads $mynewref_recal $reads_1 > $outputfolder/aln/"$samplename"_1.remap.recal.sai 
-bwa aln -R 5 -t $nthreads $mynewref_recal $reads_2 > $outputfolder/aln/"$samplename"_2.remap.recal.sai 
-bwa sampe -P $mynewref_recal $outputfolder/aln/"$samplename"_1.remap.recal.sai $outputfolder/aln/"$samplename"_2.remap.recal.sai $reads_1 $reads_2 | $ericscriptfolder/lib/perl/xa2multi.pl > $outputfolder/aln/$samplename.remap.recal.sam 
+bwa aln -R 5 -t $nthreads $mynewref_recal $reads_1 > $outputfolder/aln/"$samplename"_1.remap.recal.sai
+bwa aln -R 5 -t $nthreads $mynewref_recal $reads_2 > $outputfolder/aln/"$samplename"_2.remap.recal.sai
+bwa sampe -P $mynewref_recal $outputfolder/aln/"$samplename"_1.remap.recal.sai $outputfolder/aln/"$samplename"_2.remap.recal.sai $reads_1 $reads_2 | $ericscriptfolder/lib/perl/xa2multi.pl > $outputfolder/aln/$samplename.remap.recal.sam
 else
 bwa mem -Y -t $nthreads $mynewref_recal $reads_1 $reads_2 | $ericscriptfolder/lib/perl/xa2multi.pl > $outputfolder/aln/$samplename.remap.recal.sam
 fi
-samtools view -@ $nthreads -bt $mynewref_recal -o $outputfolder/aln/$samplename.remap.recal.bam $outputfolder/aln/$samplename.remap.recal.sam 
+samtools view -@ $nthreads -bt $mynewref_recal -o $outputfolder/aln/$samplename.remap.recal.bam $outputfolder/aln/$samplename.remap.recal.sam
 samtools sort -@ $nthreads $outputfolder/aln/$samplename.remap.recal.bam $outputfolder/aln/$samplename.remap.recal.sorted
-samtools rmdup $outputfolder/aln/$samplename.remap.recal.sorted.bam $outputfolder/aln/$samplename.remap.recal.sorted.rmdup.bam 
-samtools index $outputfolder/aln/$samplename.remap.recal.sorted.rmdup.bam 
+samtools rmdup $outputfolder/aln/$samplename.remap.recal.sorted.bam $outputfolder/aln/$samplename.remap.recal.sorted.rmdup.bam
+samtools index $outputfolder/aln/$samplename.remap.recal.sorted.rmdup.bam
 samtools view -@ $nthreads -b -h -q 1 $outputfolder/aln/$samplename.remap.recal.sorted.rmdup.bam > $outputfolder/aln/$samplename.remap.recal.sorted.rmdup.q1.bam
 samtools index $outputfolder/aln/$samplename.remap.recal.sorted.rmdup.q1.bam
 fi
@@ -272,5 +272,5 @@ printf "[EricScript] Removing temporary files ... "
 rm -r $outputfolder/aln
 rm -r $outputfolder/out
 printf "done. \n"
-fi 
+fi
 printf "[EricScript] Open $outputfolder/$samplename.results* to view the results of EricScript analysis.\n"
