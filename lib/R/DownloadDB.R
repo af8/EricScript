@@ -62,11 +62,11 @@ if (myrefid == "homo_sapiens") {
   cat("<Filter name = \"with_hgnc\" excluded = \"0\"/>", file = fileout, sep = "\n", append = T)
 } else {
   cat("<Filter name = \"biotype\" value = \"protein_coding\"/>", file = fileout, sep = "\n", append = T)
-} 
+}
 #### start attributes
 cat("<Attribute name = \"ensembl_gene_id\" />", file = fileout, sep = "\n", append = T)
 if (ensversion > 0 & ensversion <= 75) {
-  cat("<Attribute name = \"external_gene_id\" />", file = fileout, sep = "\n", append = T)  
+  cat("<Attribute name = \"external_gene_id\" />", file = fileout, sep = "\n", append = T)
 } else {
   cat("<Attribute name = \"external_gene_name\" />", file = fileout, sep = "\n", append = T)
 }
@@ -88,7 +88,7 @@ if (myrefid == "homo_sapiens") {
   cat("<Filter name = \"with_hgnc\" excluded = \"0\"/>", file = fileout, sep = "\n", append = T)
 } else {
   cat("<Filter name = \"biotype\" value = \"protein_coding\"/>", file = fileout, sep = "\n", append = T)
-} 
+}
 #### start attributes
 cat("<Attribute name = \"ensembl_gene_id\" />", file = fileout, sep = "\n", append = T)
 cat("<Attribute name = \"exon_chrom_start\" />", file = fileout, sep = "\n", append = T)
@@ -111,7 +111,7 @@ if (myrefid == "homo_sapiens") {
   cat("<Filter name = \"with_hgnc\" excluded = \"0\"/>", file = fileout, sep = "\n", append = T)
 } else {
   cat("<Filter name = \"biotype\" value = \"protein_coding\"/>", file = fileout, sep = "\n", append = T)
-} 
+}
 #### start attributes
 cat("<Attribute name = \"ensembl_gene_id\" />", file = fileout, sep = "\n", append = T)
 cat("<Attribute name = \"strand\" />", file = fileout, sep = "\n", append = T)
@@ -134,7 +134,7 @@ if (myrefid == "homo_sapiens") {
     cat("<Filter name = \"with_hgnc\" excluded = \"0\"/>", file = fileout, sep = "\n", append = T)
   } else {
     cat("<Filter name = \"biotype\" value = \"protein_coding\"/>", file = fileout, sep = "\n", append = T)
-  } 
+  }
   #### start attributes
   cat("<Attribute name = \"ensembl_gene_id\" />", file = fileout, sep = "\n", append = T)
   cat("<Attribute name = \"hsapiens_paralog_ensembl_gene\" />", file = fileout, sep = "\n", append = T)
@@ -156,7 +156,7 @@ if (myrefid == "homo_sapiens") {
   cat("<Filter name = \"with_hgnc\" excluded = \"0\"/>", file = fileout, sep = "\n", append = T)
 } else {
   cat("<Filter name = \"biotype\" value = \"protein_coding\"/>", file = fileout, sep = "\n", append = T)
-} 
+}
 #### start attributes
 cat("<Attribute name = \"ensembl_gene_id\" />", file = fileout, sep = "\n", append = T)
 cat("<Attribute name = \"ensembl_transcript_id\" />", file = fileout, sep = "\n", append = T)
@@ -180,7 +180,7 @@ if (myrefid == "homo_sapiens") {
   cat("<Filter name = \"with_hgnc\" excluded = \"0\"/>", file = fileout, sep = "\n", append = T)
 } else {
   cat("<Filter name = \"biotype\" value = \"protein_coding\"/>", file = fileout, sep = "\n", append = T)
-} 
+}
 #### start attributes
 cat("<Attribute name = \"ensembl_transcript_id\" />", file = fileout, sep = "\n", append = T)
 cat("<Attribute name = \"cdna\" />", file = fileout, sep = "\n", append = T)
@@ -202,6 +202,3 @@ if (myrefid == "homo_sapiens") {
 }
 ## download seq data
 download.file(file.path("ftp://ftp.ensembl.org/pub", paste("release-", ensversion, sep = ""), "fasta", myrefid, "dna", myrefid.path), destfile = file.path(tmpfolder, "seq.fa.gz"), quiet = T)
-
-
-
