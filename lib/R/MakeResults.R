@@ -3,7 +3,7 @@
 ## added machine-learning based algorithm as summarization score
 ## new method to retrieve genomic coordinates
 ## genome reference from db data
-## edited gene fusions separator 
+## edited gene fusions separator
 
 vars.tmp <- commandArgs()
 vars <- vars.tmp[length(vars.tmp)]
@@ -19,7 +19,7 @@ dbfolder <- as.character(split.vars[7])
 
 flag.ada <- require(ada, quietly = T)
 if (flag.ada == F) {
-  require(kernlab, quietly = T)  
+  require(kernlab, quietly = T)
 }
 load(file.path(outputfolder,"out",paste(samplename,".chimeric.RData", sep = "")))
 load(file.path(outputfolder,"out",paste(samplename,".DataMatrix.RData", sep = "")))
@@ -31,7 +31,7 @@ load(file.path(dbfolder, "data", refid, "EnsemblGene.Sequences.RData"))
 load(file.path(ericscriptfolder, "lib","data", "_resources", "BlackList.RData"))
 load(file.path(ericscriptfolder, "lib","data", "_resources", "DataModel.RData"))
 genomeref <- file.path(dbfolder, "data", refid, "allseq.fa")
-  
+
 checkselfhomology.fa <- scan(file = file.path(outputfolder,"out", paste(samplename, ".checkselfhomology.fa", sep = "")), sep= "\n", what = "", quiet = T)
 seq.length <- nchar(checkselfhomology.fa)[2]
 ix.id.fa <- which(checkselfhomology.fa %in% paste(">",info.id.and.homology[,1], sep = ""))
@@ -47,7 +47,7 @@ exone.tmp2 <- exone.tmp[seq(2, dim(DataMatrix)[1]*2, by = 2)]
 ensgenename1 <- unlist(strsplit(exone.tmp1, "_"))[seq(1, dim(DataMatrix)[1]*2, by = 2)]
 ensgenename2 <- unlist(strsplit(exone.tmp2, "_"))[seq(1, dim(DataMatrix)[1]*2, by = 2)]
 ix.idd <- which(DataMatrix[,1] %in% info.id.and.homology[,1])
-DataMatrixF <- DataMatrix[ix.idd ,]
+DataMatrixF <- DataMatrix[ix.idd , , drop = FALSE]
 homology <- info.id.and.homology[,2]
 flag.dup.a <- info.id.and.homology[,3]
 flag.dup.b <- info.id.and.homology[,4]
@@ -101,7 +101,7 @@ for (i in 1:length(ensgenename1)) {
     strand2[i] <- geneinfo.strand[ix.gene2]
     genestart2[i] <- geneinfo.start[ix.gene2]
     geneend2[i] <- geneinfo.end[ix.gene2]
-    
+
   }
 }
 
@@ -116,7 +116,7 @@ for (hh in 1: length(ensgenename1)) {
   diff.adj.tot[hh] <- MyGF$diffpos[hhix]
   n.crossing[hh] <- MyGF$nreads[hhix]
 }
-n.spanning <- as.numeric(as.character(DataMatrixF[,4])) 
+n.spanning <- as.numeric(as.character(DataMatrixF[,4]))
 edge.score <- round(as.numeric(as.character(DataMatrixF[,6])), digits = 4)
 gjs.score <- round(as.numeric(as.character(DataMatrixF[,7])), digits = 4)
 unique.score <- round(as.numeric(as.character(DataMatrixF[,8])), digits = 4)
@@ -125,15 +125,15 @@ ins.size <- round(as.numeric(as.character(DataMatrixF[,3])), digits = 2)
 adj <- rep("Not Adjacent", length(ensgenename1))
 adj[which(diff.adj.tot == 1)] <- "Adjacent"
 if (refid == "homo_sapiens") {
-  
+
   acceptable.chrs <- c(seq.int(1,22), "X","Y")
   ix.chr1 <- which(chr1 %in% acceptable.chrs)
   ix.chr2 <- which(chr2 %in% acceptable.chrs)
   ix.chr.tmp1 <- intersect(ix.chr1, ix.chr2)
   ix.chr.tmp2 <- intersect(grep("NNN", right_junction, invert = T), grep("NNN", left_junction, invert = T))
   ix.chr <- intersect(ix.chr.tmp1, ix.chr.tmp2)
-  
-  
+
+
   if (length(ix.chr) > 0) {
     genename1 <- genename1[ix.chr]
     genename2 <- genename2[ix.chr]
@@ -194,9 +194,9 @@ for (iexpr in 1: length(ensgenename1)) {
 # NEW Find GenomicPosition (50nt)
 for (i in 1: length(ensgenename1)) {
   if (i == 1) {
-    cat(paste("@", i, "_", 1, "\n", left_junction[i], "\n+\n", gsub(", ", "", toString(rep("I", nchar(left_junction[i])))), "\n", "@", i, "_", 2, "\n", right_junction[i],"\n+\n", gsub(", ", "", toString(rep("I", nchar(right_junction[i])))), sep = ""), sep = "\n", file = file.path(outputfolder, "out", "findgenomicpos.fq"), append = F)    
+    cat(paste("@", i, "_", 1, "\n", left_junction[i], "\n+\n", gsub(", ", "", toString(rep("I", nchar(left_junction[i])))), "\n", "@", i, "_", 2, "\n", right_junction[i],"\n+\n", gsub(", ", "", toString(rep("I", nchar(right_junction[i])))), sep = ""), sep = "\n", file = file.path(outputfolder, "out", "findgenomicpos.fq"), append = F)
   } else {
-    cat(paste("@", i, "_", 1, "\n", left_junction[i], "\n+\n", gsub(", ", "", toString(rep("I", nchar(left_junction[i])))), "\n", "@", i, "_", 2, "\n", right_junction[i],"\n+\n", gsub(", ", "", toString(rep("I", nchar(right_junction[i])))), sep = ""), sep = "\n", file = file.path(outputfolder, "out", "findgenomicpos.fq"), append = T)  
+    cat(paste("@", i, "_", 1, "\n", left_junction[i], "\n+\n", gsub(", ", "", toString(rep("I", nchar(left_junction[i])))), "\n", "@", i, "_", 2, "\n", right_junction[i],"\n+\n", gsub(", ", "", toString(rep("I", nchar(right_junction[i])))), sep = ""), sep = "\n", file = file.path(outputfolder, "out", "findgenomicpos.fq"), append = T)
   }
 }
 system(paste("bwa aln", "-R 50", genomeref, file.path(outputfolder, "out", "findgenomicpos.fq"), ">", file.path(outputfolder, "out", "findgenomicpos.fq.sai"), "2>>", file.path(outputfolder, "out", ".ericscript.log")))
@@ -215,20 +215,20 @@ pos.pos <- as.numeric(as.character(xx.pos[[4]]))
 mapq.pos <- as.numeric(as.character(xx.pos[[5]]))
 
 for (i in 1: length(ensgenename1)) {
-  
+
   ## for 5' gene
   ix.mypos <- which(id.pos == paste(i, "_1", sep = ""))
   chr.pos.ix <- chr.pos[ix.mypos]
   flag.pos.ix <- flag.pos[ix.mypos]
   pos.pos.ix <- pos.pos[ix.mypos]
-  mapq.pos.ix <- mapq.pos[ix.mypos] 
+  mapq.pos.ix <- mapq.pos[ix.mypos]
   ix.okpos <- which(chr.pos.ix == chr1[i] & pos.pos.ix >= as.numeric(genestart1[i]) & pos.pos.ix <= as.numeric(geneend1[i]))
   if (length(ix.okpos) > 1) {
     ix.okpos <- ix.okpos[which.max(mapq.pos.ix[ix.okpos])]
   }
   if (length(ix.okpos) > 0) {
     if (flag.pos.ix[ix.okpos] == 16) {
-      genpos_1[i] <- pos.pos.ix[ix.okpos] 
+      genpos_1[i] <- pos.pos.ix[ix.okpos]
     } else {
       genpos_1[i] <- pos.pos.ix[ix.okpos] + 49
     }
@@ -238,7 +238,7 @@ for (i in 1: length(ensgenename1)) {
   chr.pos.ix <- chr.pos[ix.mypos]
   flag.pos.ix <- flag.pos[ix.mypos]
   pos.pos.ix <- pos.pos[ix.mypos]
-  mapq.pos.ix <- mapq.pos[ix.mypos] 
+  mapq.pos.ix <- mapq.pos[ix.mypos]
   ix.okpos <- which(chr.pos.ix == chr2[i] & pos.pos.ix >= as.numeric(genestart2[i]) & pos.pos.ix <= as.numeric(geneend2[i]))
   if (length(ix.okpos) > 1) {
     ix.okpos <- ix.okpos[which.max(mapq.pos.ix[ix.okpos])]
@@ -247,7 +247,7 @@ for (i in 1: length(ensgenename1)) {
     if (flag.pos.ix[ix.okpos] == 16) {
       genpos_2[i] <- pos.pos.ix[ix.okpos] + 49
     } else {
-      genpos_2[i] <- pos.pos.ix[ix.okpos] 
+      genpos_2[i] <- pos.pos.ix[ix.okpos]
     }
   }
 }
@@ -256,14 +256,14 @@ for (i in 1: length(ensgenename1)) {
 ix.na.pos_1 <- which(genpos_1 == 0)
 ix.na.pos_2 <- which(genpos_2 == 0)
 if (length(ix.na.pos_1 ) > 0 | length(ix.na.pos_2 ) > 0) {
-  
+
 left_junction.trim <- substr(left_junction, 26, 50)
 right_junction.trim <- substr(right_junction, 1, 25)
 for (i in 1: length(ensgenename1)) {
   if (i == 1) {
-    cat(paste("@", i, "_", 1, "\n", left_junction.trim[i], "\n+\n", gsub(", ", "", toString(rep("I", nchar(left_junction.trim[i])))), "\n", "@", i, "_", 2, "\n", right_junction.trim[i],"\n+\n", gsub(", ", "", toString(rep("I", nchar(right_junction.trim[i])))), sep = ""), sep = "\n", file = file.path(outputfolder, "out", "findgenomicpos.fq"), append = F)    
+    cat(paste("@", i, "_", 1, "\n", left_junction.trim[i], "\n+\n", gsub(", ", "", toString(rep("I", nchar(left_junction.trim[i])))), "\n", "@", i, "_", 2, "\n", right_junction.trim[i],"\n+\n", gsub(", ", "", toString(rep("I", nchar(right_junction.trim[i])))), sep = ""), sep = "\n", file = file.path(outputfolder, "out", "findgenomicpos.fq"), append = F)
   } else {
-    cat(paste("@", i, "_", 1, "\n", left_junction.trim[i], "\n+\n", gsub(", ", "", toString(rep("I", nchar(left_junction.trim[i])))), "\n", "@", i, "_", 2, "\n", right_junction.trim[i],"\n+\n", gsub(", ", "", toString(rep("I", nchar(right_junction.trim[i])))), sep = ""), sep = "\n", file = file.path(outputfolder, "out", "findgenomicpos.fq"), append = T)  
+    cat(paste("@", i, "_", 1, "\n", left_junction.trim[i], "\n+\n", gsub(", ", "", toString(rep("I", nchar(left_junction.trim[i])))), "\n", "@", i, "_", 2, "\n", right_junction.trim[i],"\n+\n", gsub(", ", "", toString(rep("I", nchar(right_junction.trim[i])))), sep = ""), sep = "\n", file = file.path(outputfolder, "out", "findgenomicpos.fq"), append = T)
   }
 }
 system(paste("bwa aln", "-R 50", genomeref, file.path(outputfolder, "out", "findgenomicpos.fq"), ">", file.path(outputfolder, "out", "findgenomicpos.fq.sai"), "2>>", file.path(outputfolder, "out", ".ericscript.log")))
@@ -285,14 +285,14 @@ for (i in 1: length(ensgenename1)) {
     chr.pos.ix <- chr.pos[ix.mypos]
     flag.pos.ix <- flag.pos[ix.mypos]
     pos.pos.ix <- pos.pos[ix.mypos]
-    mapq.pos.ix <- mapq.pos[ix.mypos] 
+    mapq.pos.ix <- mapq.pos[ix.mypos]
     ix.okpos <- which(chr.pos.ix == chr1[i] & pos.pos.ix >= as.numeric(genestart1[i]) & pos.pos.ix <= as.numeric(geneend1[i]))
     if (length(ix.okpos) > 1) {
       ix.okpos <- ix.okpos[which.max(mapq.pos.ix[ix.okpos])]
     }
     if (length(ix.okpos) > 0) {
       if (flag.pos.ix[ix.okpos] == 16) {
-        genpos_1[i] <- pos.pos.ix[ix.okpos] 
+        genpos_1[i] <- pos.pos.ix[ix.okpos]
       } else {
         genpos_1[i] <- pos.pos.ix[ix.okpos] + 24
       }
@@ -304,7 +304,7 @@ for (i in 1: length(ensgenename1)) {
     chr.pos.ix <- chr.pos[ix.mypos]
     flag.pos.ix <- flag.pos[ix.mypos]
     pos.pos.ix <- pos.pos[ix.mypos]
-    mapq.pos.ix <- mapq.pos[ix.mypos] 
+    mapq.pos.ix <- mapq.pos[ix.mypos]
     ix.okpos <- which(chr.pos.ix == chr2[i] & pos.pos.ix >= as.numeric(genestart2[i]) & pos.pos.ix <= as.numeric(geneend2[i]))
     if (length(ix.okpos) > 1) {
       ix.okpos <- ix.okpos[which.max(mapq.pos.ix[ix.okpos])]
@@ -313,7 +313,7 @@ for (i in 1: length(ensgenename1)) {
       if (flag.pos.ix[ix.okpos] == 16) {
         genpos_2[i] <- pos.pos.ix[ix.okpos] + 24
       } else {
-        genpos_2[i] <- pos.pos.ix[ix.okpos] 
+        genpos_2[i] <- pos.pos.ix[ix.okpos]
       }
     }
   }
@@ -325,9 +325,9 @@ left_junction.trim <- substr(left_junction, 1, 25)
 right_junction.trim <- substr(right_junction, 26, 50)
 for (i in 1: length(ensgenename1)) {
   if (i == 1) {
-    cat(paste("@", i, "_", 1, "\n", left_junction.trim[i], "\n+\n", gsub(", ", "", toString(rep("I", nchar(left_junction.trim[i])))), "\n", "@", i, "_", 2, "\n", right_junction.trim[i],"\n+\n", gsub(", ", "", toString(rep("I", nchar(right_junction.trim[i])))), sep = ""), sep = "\n", file = file.path(outputfolder, "out", "findgenomicpos.fq"), append = F)    
+    cat(paste("@", i, "_", 1, "\n", left_junction.trim[i], "\n+\n", gsub(", ", "", toString(rep("I", nchar(left_junction.trim[i])))), "\n", "@", i, "_", 2, "\n", right_junction.trim[i],"\n+\n", gsub(", ", "", toString(rep("I", nchar(right_junction.trim[i])))), sep = ""), sep = "\n", file = file.path(outputfolder, "out", "findgenomicpos.fq"), append = F)
   } else {
-    cat(paste("@", i, "_", 1, "\n", left_junction.trim[i], "\n+\n", gsub(", ", "", toString(rep("I", nchar(left_junction.trim[i])))), "\n", "@", i, "_", 2, "\n", right_junction.trim[i],"\n+\n", gsub(", ", "", toString(rep("I", nchar(right_junction.trim[i])))), sep = ""), sep = "\n", file = file.path(outputfolder, "out", "findgenomicpos.fq"), append = T)  
+    cat(paste("@", i, "_", 1, "\n", left_junction.trim[i], "\n+\n", gsub(", ", "", toString(rep("I", nchar(left_junction.trim[i])))), "\n", "@", i, "_", 2, "\n", right_junction.trim[i],"\n+\n", gsub(", ", "", toString(rep("I", nchar(right_junction.trim[i])))), sep = ""), sep = "\n", file = file.path(outputfolder, "out", "findgenomicpos.fq"), append = T)
   }
 }
 system(paste("bwa aln", "-R 50", genomeref, file.path(outputfolder, "out", "findgenomicpos.fq"), ">", file.path(outputfolder, "out", "findgenomicpos.fq.sai"), "2>>", file.path(outputfolder, "out", ".ericscript.log")))
@@ -351,7 +351,7 @@ for (i in 1: length(ensgenename1)) {
     chr.pos.ix <- chr.pos[ix.mypos]
     flag.pos.ix <- flag.pos[ix.mypos]
     pos.pos.ix <- pos.pos[ix.mypos]
-    mapq.pos.ix <- mapq.pos[ix.mypos] 
+    mapq.pos.ix <- mapq.pos[ix.mypos]
     ix.okpos <- which(chr.pos.ix == chr1[i] & pos.pos.ix >= as.numeric(genestart1[i]) & pos.pos.ix <= as.numeric(geneend1[i]))
     if (length(ix.okpos) > 1) {
       ix.okpos <- ix.okpos[which.max(mapq.pos.ix[ix.okpos])]
@@ -370,7 +370,7 @@ for (i in 1: length(ensgenename1)) {
     chr.pos.ix <- chr.pos[ix.mypos]
     flag.pos.ix <- flag.pos[ix.mypos]
     pos.pos.ix <- pos.pos[ix.mypos]
-    mapq.pos.ix <- mapq.pos[ix.mypos] 
+    mapq.pos.ix <- mapq.pos[ix.mypos]
     ix.okpos <- which(chr.pos.ix == chr2[i] & pos.pos.ix >= as.numeric(genestart2[i]) & pos.pos.ix <= as.numeric(geneend2[i]))
     if (length(ix.okpos) > 1) {
       ix.okpos <- ix.okpos[which.max(mapq.pos.ix[ix.okpos])]
@@ -379,7 +379,7 @@ for (i in 1: length(ensgenename1)) {
       if (flag.pos.ix[ix.okpos] == 16) {
         genpos_2[i] <- pos.pos.ix[ix.okpos] + 24
       } else {
-        genpos_2[i] <- pos.pos.ix[ix.okpos] - 1 
+        genpos_2[i] <- pos.pos.ix[ix.okpos] - 1
       }
     }
   }
@@ -403,7 +403,7 @@ genpos_2.recal <- genpos_2
 #   if (mydiff <= 3) {
 #     genpos_1.recal[i] <- exonpos[ix.exon]
 #   }
-#   
+#
 #   ix.ref <- grep(ensgenename2[i], GeneNames)
 #   ix.ref.table <- which(GeneNames[ix.ref] == geneinfo.id)
 #   if (strand2[i] == "+") {
@@ -429,7 +429,7 @@ if (flag.ada) {
 } else {
   sig <- sigest(control~., data = DataScores, frac = 1, na.action = na.omit, scaled = TRUE)[2]
   model <- ksvm(control~., data = DataScores, type = "C-svc", kernel = "rbfdot", kpar = list(sigma = sig), C = 1, prob.model = TRUE)
-  ericscore <- predict(model, myscores, type = "probabilities")[,2]  
+  ericscore <- predict(model, myscores, type = "probabilities")[,2]
 }
 ix.repeated <- unique(c(which(is.na(genpos_1)), which(is.na(genpos_2))))
 ix.norepeated <- intersect(which(is.na(genpos_1) == F), which(is.na(genpos_2) == F))
@@ -444,7 +444,7 @@ if (length(ix.bl) > 0) {
   }
 }
 oddity.spanningreads <- rep(0, length(genpos_1))
-oddity.spanningreads[which(n.spanning == 1 & n.crossing >= 10)] <- 1    
+oddity.spanningreads[which(n.spanning == 1 & n.crossing >= 10)] <- 1
 fusion.type <- rep("inter-chromosomal",length(genpos_1))
 fusion.type[which(chr1==chr2)] <- "intra-chromosomal"
 fusion.type[intersect(intersect(which(chr1==chr2) , which(adj == "Adjacent")), which(strand1 == strand2))] <- "Read-Through"
@@ -467,19 +467,5 @@ if (dim(SummaryMat)[1] > 0) {
 {
   Results <- "No Chimeric Transcript found!"
   write.table(Results, file = file.path(outputfolder,paste(samplename,".results.total.tsv", sep = "")), sep = "\t", row.names = F, col.names = F, quote = F)
-  
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
